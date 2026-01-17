@@ -26,6 +26,52 @@ except ImportError as e:
     print(f"Warning: Could not import wardrobe routes: {e}")
     WARDROBE_ROUTES_AVAILABLE = False
 
+try:
+    print("[*] Loading Photobooth routes...")
+    from src.Photobooth.routes import router as photobooth_router
+    PHOTOBOOTH_ROUTES_AVAILABLE = True
+    print("[OK] Photobooth routes loaded successfully")
+except Exception as e:
+    print(f"[ERROR] Could not import photobooth routes: {e}")
+    import traceback
+    traceback.print_exc()
+    PHOTOBOOTH_ROUTES_AVAILABLE = False
+
+try:
+    from src.ClothesSearch.routes import router as search_router
+    SEARCH_ROUTES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import clothes search routes: {e}")
+    SEARCH_ROUTES_AVAILABLE = False
+
+try:
+    from src.ClothesRecommendation.routes import router as recommendation_router
+    RECOMMENDATION_ROUTES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import recommendation routes: {e}")
+    RECOMMENDATION_ROUTES_AVAILABLE = False
+
+try:
+    from src.LiveVideoCall.routes import router as video_call_router
+    VIDEO_CALL_ROUTES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import video call routes: {e}")
+    VIDEO_CALL_ROUTES_AVAILABLE = False
+
+try:
+    from src.OAuth.calendar_routes import router as calendar_router
+    CALENDAR_ROUTES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import calendar routes: {e}")
+    CALENDAR_ROUTES_AVAILABLE = False
+
+try:
+    from src.VirtualTryOn.routes import router as virtual_tryon_router
+    VIRTUAL_TRYON_ROUTES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Could not import virtual try-on routes: {e}")
+    VIRTUAL_TRYON_ROUTES_AVAILABLE = False
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Lovelace API",
@@ -48,6 +94,24 @@ app.add_middleware(
 # Include routers
 if WARDROBE_ROUTES_AVAILABLE:
     app.include_router(wardrobe_router, tags=["Wardrobe & Clothing"])
+
+if PHOTOBOOTH_ROUTES_AVAILABLE:
+    app.include_router(photobooth_router, tags=["Photobooth"])
+
+if SEARCH_ROUTES_AVAILABLE:
+    app.include_router(search_router, tags=["Clothes Search"])
+
+if RECOMMENDATION_ROUTES_AVAILABLE:
+    app.include_router(recommendation_router, tags=["Recommendations"])
+
+if VIDEO_CALL_ROUTES_AVAILABLE:
+    app.include_router(video_call_router, tags=["Video Call"])
+
+if CALENDAR_ROUTES_AVAILABLE:
+    app.include_router(calendar_router, tags=["Google Calendar"])
+
+if VIRTUAL_TRYON_ROUTES_AVAILABLE:
+    app.include_router(virtual_tryon_router, tags=["Virtual Try-On"])
 
 
 @app.get("/")
@@ -82,13 +146,13 @@ async def health_check():
         "status": "healthy",
         "service": "Lovelace API",
         "modules": {
-            "wardrobe_db": "active",
-            "clothes_search": "pending",
-            "virtual_try_on": "pending",
-            "recommendation": "pending",
-            "calendar_sync": "pending",
-            "video_call": "pending",
-            "photobooth": "pending",
+            "wardrobe_db": "active" if WARDROBE_ROUTES_AVAILABLE else "unavailable",
+            "clothes_search": "active" if SEARCH_ROUTES_AVAILABLE else "unavailable",
+            "recommendation": "active" if RECOMMENDATION_ROUTES_AVAILABLE else "unavailable",
+            "photobooth": "active" if PHOTOBOOTH_ROUTES_AVAILABLE else "unavailable",
+            "video_call": "active" if VIDEO_CALL_ROUTES_AVAILABLE else "unavailable",
+            "calendar_sync": "active" if CALENDAR_ROUTES_AVAILABLE else "unavailable",
+            "virtual_try_on": "active" if VIRTUAL_TRYON_ROUTES_AVAILABLE else "unavailable",
             "product_3d": "pending"
         }
     }

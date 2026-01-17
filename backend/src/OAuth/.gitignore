@@ -1,0 +1,9 @@
+# OAuth credentials and tokens
+.env
+tokens/
+*.pickle
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
