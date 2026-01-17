@@ -1,0 +1,57 @@
+# Lovelace Photobooth - Dependencies
+
+# Core Requirements
+# ==================
+
+# AI/ML
+google-genai>=0.2.0        # Gemini AI for background generation
+rembg>=2.0.0              # AI background removal (optional but recommended)
+
+# Image Processing
+pillow>=10.0.0            # Image manipulation and I/O
+opencv-contrib-python>=4.8.0  # Webcam capture with GUI support (use this instead of opencv-python)
+numpy>=1.24.0             # Array operations
+
+# Note: Use opencv-contrib-python for Windows GUI support
+# If you have opencv-python installed, uninstall it first:
+#   pip uninstall opencv-python
+#   pip install opencv-contrib-python
+
+# Utilities
+python-dotenv>=1.0.0      # Environment variable management
+
+# Optional Dependencies
+# ====================
+
+# For better performance
+# opencv-contrib-python>=4.8.0  # Additional OpenCV features
+
+# For GPU acceleration (if available)
+# onnxruntime-gpu>=1.15.0       # GPU support for rembg
+
+# Development/Testing
+# ===================
+
+# fastapi>=0.100.0         # For API integration
+# uvicorn>=0.23.0          # ASGI server
+# pytest>=7.4.0            # Testing framework
+# black>=23.0.0            # Code formatting
+# flake8>=6.0.0            # Linting
+
+# Notes
+# =====
+# 
+# Minimum Installation (Basic functionality):
+#   pip install google-genai pillow opencv-python numpy python-dotenv
+#
+# Recommended Installation (Best quality):
+#   pip install -r requirements.txt
+#
+# Optional GPU Support (Faster background removal):
+#   pip install onnxruntime-gpu
+#
+# System Requirements:
+#   - Python 3.8 or higher
+#   - Webcam (for photo capture)
+#   - 4GB RAM minimum (8GB recommended with rembg)
+#   - Internet connection (for Gemini API)
