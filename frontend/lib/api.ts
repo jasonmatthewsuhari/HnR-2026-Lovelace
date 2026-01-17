@@ -243,3 +243,161 @@ export async function getUserCollections(userId: string) {
 export async function getWardrobeStats(userId: string) {
   return apiRequest<WardrobeStats>(`/api/users/${userId}/stats`)
 }
+
+// ==================== IMAGE PROCESSING ====================
+
+export async function removeBackground(imageFile: File): Promise<string> {
+  const token = await getAuthToken()
+
+  const formData = new FormData()
+  formData.append('image', imageFile)
+
+  const headers: HeadersInit = {}
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/photobooth/remove-background`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ detail: 'Unknown error' }))
+    throw new Error(error.detail || `HTTP ${response.status}`)
+  }
+
+  const result = await response.json()
+  return result.image // Returns base64 data URL
+}
+
+// ==================== GOOGLE CALENDAR ====================
+
+export interface CalendarAuthStatus {
+  authenticated: boolean
+  email?: string
+  name?: string
+  error?: string
+  message?: string
+}
+
+export interface CalendarEvent {
+  id: string
+  summary: string
+  description?: string
+  start: {
+    dateTime?: string
+    date?: string
+    timeZone?: string
+  }
+  end: {
+    dateTime?: string
+    date?: string
+    timeZone?: string
+  }
+  location?: string
+  htmlLink?: string
+}
+
+export interface CalendarInfo {
+  id: string
+  summary: string
+  description?: string
+  primary?: boolean
+  accessRole: string
+}
+
+export interface CalendarEventsResponse {
+  events: CalendarEvent[]
+  occasions: {
+    total_events: number
+    by_type: Record<string, any[]>
+    special_occasions: any[]
+  }
+  calendar_id: string
+  count: number
+}
+
+export interface OutfitContextResponse {
+  context: string
+  occasions: {
+    total_events: number
+    by_type: Record<string, any[]>
+    special_occasions: any[]
+  }
+  analysis_period_days: number
+}
+
+export async function initiateGoogleAuth(userId: string): Promise<{ auth_url: string; message: string }> {
+  return apiRequest('/api/calendar/auth/' + userId)
+}
+
+export async function exchangeGoogleAuthCode(userId: string, code: string): Promise<{ message: string; user_id: string }> {
+  const params = new URLSearchParams({ code })
+  return apiRequest(`/api/calendar/auth/exchange-code/${userId}?${params}`, {
+    method: 'POST'
+  })
+}
+
+export async function checkGoogleAuthStatus(userId: string): Promise<CalendarAuthStatus> {
+  return apiRequest('/api/calendar/auth/status/' + userId)
+}
+
+export async function getUserCalendars(userId: string): Promise<CalendarInfo[]> {
+  return apiRequest('/api/calendar/calendars/' + userId)
+}
+
+export async function getCalendarEvents(
+  userId: string,
+  calendarId: string = 'primary',
+  maxResults: number = 10,
+  daysAhead: number = 7
+): Promise<CalendarEventsResponse> {
+  const params = new URLSearchParams({
+    calendar_id: calendarId,
+    max_results: maxResults.toString(),
+    days_ahead: daysAhead.toString()
+  })
+  return apiRequest(`/api/calendar/events/${userId}?${params}`)
+}
+
+export async function getEventsForDate(
+  userId: string,
+  date: string,
+  calendarId: string = 'primary'
+): Promise<CalendarEvent[]> {
+  const params = new URLSearchParams({
+    date,
+    calendar_id: calendarId
+  })
+  return apiRequest(`/api/calendar/events/${userId}/date?${params}`)
+}
+
+export async function createCalendarEvent(
+  userId: string,
+  eventData: {
+    summary: string
+    start_time: string
+    end_time: string
+    description?: string
+    location?: string
+    calendar_id?: string
+  }
+): Promise<CalendarEvent> {
+  return apiRequest(`/api/calendar/events/${userId}`, {
+    method: 'POST',
+    body: JSON.stringify(eventData),
+  })
+}
+
+export async function getOutfitContext(userId: string, daysAhead: number = 7): Promise<OutfitContextResponse> {
+  const params = new URLSearchParams({ days_ahead: daysAhead.toString() })
+  return apiRequest(`/api/calendar/outfit-context/${userId}?${params}`)
+}
+
+export async function revokeGoogleAuth(userId: string): Promise<{ message: string; user_id: string }> {
+  return apiRequest(`/api/calendar/auth/${userId}`, {
+    method: 'DELETE',
+  })
+}

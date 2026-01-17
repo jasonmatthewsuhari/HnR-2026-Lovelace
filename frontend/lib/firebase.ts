@@ -1,5 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app'
-import { getAuth, Auth } from 'firebase/auth'
+import { getAuth, Auth, setPersistence, browserLocalPersistence } from 'firebase/auth'
 import { getFirestore, Firestore } from 'firebase/firestore'
 
 // Firebase configuration - you'll need to add these to your .env.local file
@@ -27,6 +27,12 @@ if (typeof window !== 'undefined') {
   
   auth = getAuth(app)
   db = getFirestore(app)
+  
+  // Set persistence to LOCAL so users stay logged in across browser sessions
+  // This persists the auth state even after closing the browser
+  setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error('Error setting auth persistence:', error)
+  })
 }
 
 export { auth, db }

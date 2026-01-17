@@ -1,0 +1,308 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated to soft neutral otome palette with off-white and muted colors */
+  --background: oklch(0.97 0.005 280); /* Soft off-white with very subtle warmth */
+  --foreground: oklch(0.45 0.03 280); /* Muted charcoal gray */
+  --card: oklch(0.95 0.008 280 / 0.95); /* Light card with subtle tint */
+  --card-foreground: oklch(0.45 0.03 280);
+  --popover: oklch(0.96 0.008 280 / 0.98);
+  --popover-foreground: oklch(0.45 0.03 280);
+  --primary: oklch(0.6 0.08 280); /* Muted lavender */
+  --primary-foreground: oklch(0.98 0.005 280);
+  --secondary: oklch(0.88 0.015 280); /* Very light gray-lavender */
+  --secondary-foreground: oklch(0.45 0.03 280);
+  --muted: oklch(0.92 0.01 280);
+  --muted-foreground: oklch(0.6 0.02 280);
+  --accent: oklch(0.85 0.02 280); /* Subtle accent */
+  --accent-foreground: oklch(0.45 0.03 280);
+  --destructive: oklch(0.65 0.12 10); /* Soft coral */
+  --destructive-foreground: oklch(0.98 0.005 280);
+  --border: oklch(0.9 0.01 280 / 0.4);
+  --input: oklch(0.94 0.008 280);
+  --ring: oklch(0.6 0.08 280);
+  --chart-1: oklch(0.7 0.1 300);
+  --chart-2: oklch(0.68 0.08 260);
+  --chart-3: oklch(0.72 0.06 240);
+  --chart-4: oklch(0.75 0.05 200);
+  --chart-5: oklch(0.78 0.08 320);
+  --radius: 1.5rem; /* Softer, more rounded */
+  --sidebar: oklch(0.97 0.005 280);
+  --sidebar-foreground: oklch(0.45 0.03 280);
+  --sidebar-primary: oklch(0.6 0.08 280);
+  --sidebar-primary-foreground: oklch(0.98 0.005 280);
+  --sidebar-accent: oklch(0.92 0.01 280);
+  --sidebar-accent-foreground: oklch(0.45 0.03 280);
+  --sidebar-border: oklch(0.9 0.01 280 / 0.4);
+  --sidebar-ring: oklch(0.6 0.08 280);
+}
+
+.dark {
+  --background: oklch(0.18 0.04 280);
+  --foreground: oklch(0.95 0.02 300);
+  --card: oklch(0.22 0.05 280 / 0.7);
+  --card-foreground: oklch(0.95 0.02 300);
+  --popover: oklch(0.22 0.05 280 / 0.9);
+  --popover-foreground: oklch(0.95 0.02 300);
+  --primary: oklch(0.7 0.15 280);
+  --primary-foreground: oklch(0.15 0.04 280);
+  --secondary: oklch(0.6 0.12 250);
+  --secondary-foreground: oklch(0.95 0.02 300);
+  --muted: oklch(0.3 0.05 280);
+  --muted-foreground: oklch(0.7 0.05 290);
+  --accent: oklch(0.4 0.08 280);
+  --accent-foreground: oklch(0.95 0.02 300);
+  --destructive: oklch(0.6 0.18 10);
+  --destructive-foreground: oklch(0.95 0.02 300);
+  --border: oklch(0.3 0.05 280 / 0.3);
+  --input: oklch(0.3 0.05 280 / 0.5);
+  --ring: oklch(0.7 0.15 280);
+  --chart-1: oklch(0.65 0.15 310);
+  --chart-2: oklch(0.62 0.12 250);
+  --chart-3: oklch(0.68 0.1 280);
+  --chart-4: oklch(0.7 0.08 200);
+  --chart-5: oklch(0.72 0.12 320);
+  --sidebar: oklch(0.18 0.04 280);
+  --sidebar-foreground: oklch(0.95 0.02 300);
+  --sidebar-primary: oklch(0.7 0.15 280);
+  --sidebar-primary-foreground: oklch(0.15 0.04 280);
+  --sidebar-accent: oklch(0.3 0.05 280);
+  --sidebar-accent-foreground: oklch(0.95 0.02 300);
+  --sidebar-border: oklch(0.3 0.05 280 / 0.3);
+  --sidebar-ring: oklch(0.7 0.15 280);
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-serif: "Georgia", "Cambria", "Times New Roman", "Times", serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply text-foreground;
+    /* Replaced heavy gradients with subtle foggy texture */
+    background: linear-gradient(to bottom, rgba(250, 248, 252, 1) 0%, rgba(248, 246, 250, 1) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Added subtle fog overlay effect */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at 20% 10%, rgba(240, 235, 248, 0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(235, 240, 248, 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(245, 240, 250, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Removed sparkle dots, replaced with subtle texture */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle, rgba(230, 225, 235, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: 1;
+  }
+}
+
+@layer utilities {
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes orbit {
+    from {
+      transform: rotate(0deg) translateX(80px) rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg) translateX(80px) rotate(-360deg);
+    }
+  }
+
+  @keyframes orbit-reverse {
+    from {
+      transform: rotate(0deg) translateX(80px) rotate(0deg);
+    }
+    to {
+      transform: rotate(-360deg) translateX(80px) rotate(360deg);
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(200, 150, 255, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(200, 150, 255, 0.6), 0 0 60px rgba(150, 200, 255, 0.3);
+    }
+  }
+
+  @keyframes drift {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(100px, 100px);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+  }
+
+  .animate-orbit {
+    animation: orbit 4s linear infinite;
+  }
+
+  .animate-orbit-reverse {
+    animation: orbit-reverse 5s linear infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-sparkle {
+    animation: sparkle 2s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  /* Updated glass card to be more subtle and refined */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(230, 225, 235, 0.4);
+    box-shadow: 0 4px 24px rgba(200, 195, 210, 0.12), 0 2px 8px rgba(200, 195, 210, 0.08), inset 0 1px 0
+      rgba(255, 255, 255, 0.6);
+  }
+
+  .glass-card-dark {
+    background: rgba(80, 75, 90, 0.85);
+    backdrop-filter: blur(16px) saturate(120%);
+    border: 1px solid rgba(140, 130, 150, 0.3);
+    box-shadow: 0 4px 24px rgba(60, 55, 70, 0.2), 0 2px 8px rgba(60, 55, 70, 0.15), inset 0 1px 0
+      rgba(140, 130, 150, 0.2);
+  }
+
+  /* Softer gradient text for otome style */
+  .gradient-text-otome {
+    background: linear-gradient(135deg, #8b7aa8 0%, #a89bb8 50%, #7a8ba8 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 4px rgba(139, 122, 168, 0.2));
+  }
+
+  /* More subtle glow effects */
+  .otome-glow {
+    box-shadow: 0 2px 12px rgba(139, 122, 168, 0.15), 0 4px 20px rgba(139, 122, 168, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .otome-glow:hover {
+    box-shadow: 0 4px 16px rgba(139, 122, 168, 0.25), 0 6px 28px rgba(139, 122, 168, 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Subtle chat bubble styles */
+  .chat-bubble {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(230, 225, 235, 0.5);
+    box-shadow: 0 2px 8px rgba(200, 195, 210, 0.08);
+  }
+
+  .chat-bubble-dark {
+    background: rgba(100, 95, 110, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(140, 130, 150, 0.4);
+    box-shadow: 0 2px 8px rgba(60, 55, 70, 0.12);
+  }
+}
