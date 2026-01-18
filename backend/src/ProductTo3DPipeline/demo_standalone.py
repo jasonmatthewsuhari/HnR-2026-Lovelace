@@ -383,29 +383,67 @@ except Exception as e:
     traceback.print_exc()
     sys.exit(1)
 
-# Final success message
+print(f"\n{'='*50}")
+print("STEP 3: Applying Animation (Retargeting)")
+print(f"{'='*50}")
+
+try:
+    retarget_payload = {
+        "type": "animate_retarget",
+        "original_model_task_id": rig_task_id, # Link to the Rig task ID
+        "out_format": "glb",
+        "animation": "preset:idle",            # Standard for v2.0 rig
+        "bake_animation": True
+    }
+
+    response = requests.post(f"{API_BASE}/task", headers=HEADERS, json=retarget_payload)
+    if response.status_code != 200:
+        print(f"[ERROR] Retargeting failed: {response.text}")
+        sys.exit(1)
+
+    retarget_task_id = response.json()["data"]["task_id"]
+    print(f"[OK] Retargeting started! Task: {retarget_task_id}")
+
+    # Monitor Retargeting
+    print("Waiting for animation baking (1-3 minutes)...")
+    attempt = 0
+    max_attempts = 60
+    while attempt < max_attempts:
+        response = requests.get(f"{API_BASE}/task/{retarget_task_id}", headers={"Authorization": f"Bearer {api_key}"})
+        status_data = response.json()["data"]
+        status = status_data.get("status", "unknown")
+        
+        print(f"Status: {status} - {attempt+1}/{max_attempts}")
+
+        if status == "success":
+            print("[SUCCESS] Animation completed!")
+            # Use 'model' from output for the final animated file
+            final_url = status_data["output"].get("model") or status_data["output"].get("glb")
+            
+            # Download Final File
+            print("Downloading final animated model...")
+            final_res = requests.get(final_url, timeout=120)
+            animated_file = "model_final_animated.glb"
+            with open(animated_file, "wb") as f:
+                f.write(final_res.content)
+            
+            print(f"[OK] Saved animated model: {animated_file}")
+            break
+        elif status in ["failed", "error"]:
+            print(f"[ERROR] Retargeting failed: {status}")
+            sys.exit(1)
+            
+        time.sleep(10) # Animations take a moment to bake
+        attempt += 1
+
+except Exception as e:
+    print(f"[ERROR] Step 3 failed: {e}")
+    sys.exit(1)
+
+# --- FINAL SUMMARY ---
 print(f"\n{'='*80}")
-print("🎉 DEMO COMPLETE! Both files generated successfully!")
-print(f"{'='*80}")
-
-print(f"\n📁 Files created:")
-print(f"  • 3D Model: {model_file} ({model_size/1024:.1f} KB)")
-print(f"  • Rigged:  {rigged_file} ({rigged_size/1024:.1f} KB)")
-
-print(f"\n🌐 View your models:")
-print(f"  • 3D Model: https://gltf-viewer.donmccurdy.com/")
-print(f"  • Rigged:   https://gltf-viewer.donmccurdy.com/")
-
-print(f"\n🎮 Game Engine Ready:")
-print(f"  • Import {rigged_file} into Unity/Unreal")
-print(f"  • Add animations and use in virtual try-on")
-print(f"  • Bone structure automatically detected")
-
-print(f"\n💡 What happened:")
-print(f"  1. {input_image} → AI analysis → 3D mesh generation")
-print(f"  2. {model_file} → Auto-rigging → Bone structure added")
-print(f"  3. {rigged_file} → Ready for animation!")
-
-print(f"\n{'='*80}")
-print("🚀 Your virtual try-on pipeline is ready!")
+print("🎉 PIPELINE COMPLETE!")
+print(f"1. Static Mesh: model_3d.glb")
+print(f"2. Rigged Mesh: model_rigged.glb")
+print(f"3. Animated:    {animated_file} (<- Use this for web viewing!)")
 print(f"{'='*80}")
