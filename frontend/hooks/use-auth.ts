@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { User } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
-import { onAuthChange } from '@/lib/auth'
+import { onAuthChange, signOut } from '@/lib/auth'
 import { db } from '@/lib/firebase'
 
 interface UserProfile {
@@ -46,10 +46,20 @@ export function useAuth() {
     return () => unsubscribe()
   }, [])
 
+  const logout = async () => {
+    const { error } = await signOut()
+    if (error) {
+      throw new Error(error)
+    }
+    // Clear local storage on logout
+    localStorage.removeItem('lovelace-user-profile')
+  }
+
   return {
     user,
     userProfile,
     loading,
     isAuthenticated: !!user,
+    logout,
   }
 }

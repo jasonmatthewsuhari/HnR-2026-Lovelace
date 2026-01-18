@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react"
 import { Video, VideoOff, Mic, MicOff, X, Volume2, VolumeX, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { useHaptics } from "@/hooks/use-haptics"
 
 interface VideoCallModalProps {
   isOpen: boolean
@@ -22,9 +21,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
   const [chatMessages, setChatMessages] = useState<Array<{ role: string; message: string }>>([])
   const [stream, setStream] = useState<MediaStream | null>(null)
   const [error, setError] = useState<string | null>(null)
-
-  // Haptic feedback hook
-  const haptics = useHaptics()
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
@@ -103,12 +99,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
         setIsConnected(true)
         setIsConnecting(false)
 
-        // Haptic feedback for successful connection
-        haptics.success()
-
-        // Special heartbeat haptic for romantic connection!
-        setTimeout(() => haptics.heartbeat(), 500)
-
         // Add welcome message
         setChatMessages([{
           role: "assistant",
@@ -147,9 +137,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
         setError("Connection error. Make sure the backend is running on http://localhost:8000")
         setIsConnected(false)
         setIsConnecting(false)
-
-        // Haptic feedback for error
-        haptics.error()
       }
 
       ws.onclose = () => {
@@ -343,9 +330,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
   const sendTextMessage = () => {
     if (!textMessage.trim() || !isConnected) return
 
-    // Haptic feedback for sending message
-    haptics.trigger('light')
-
     // Add to chat
     setChatMessages(prev => [...prev, {
       role: "user",
@@ -365,7 +349,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
   }
 
   const toggleCamera = () => {
-    haptics.buttonPress()
     if (stream) {
       const videoTrack = stream.getVideoTracks()[0]
       if (videoTrack) {
@@ -376,7 +359,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
   }
 
   const toggleMic = () => {
-    haptics.buttonPress()
     if (stream) {
       const audioTrack = stream.getAudioTracks()[0]
       if (audioTrack) {
@@ -387,7 +369,6 @@ export function VideoCallModal({ isOpen, onClose }: VideoCallModalProps) {
   }
 
   const toggleSpeaker = () => {
-    haptics.toggle()
     setIsSpeakerOn(!isSpeakerOn)
   }
 

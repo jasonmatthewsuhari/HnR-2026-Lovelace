@@ -41,7 +41,7 @@ if not api_key:
 print(f"[OK] API key loaded: {api_key[:10]}...{api_key[-4:]}")
 
 # Check for input image
-input_image = "model.jpeg"  # User's image
+input_image = "model.jpg"  # User's image
 if not os.path.exists(input_image):
     print(f"[ERROR] {input_image} not found!")
     print("Please place your model image as 'model.jpg' in this directory")

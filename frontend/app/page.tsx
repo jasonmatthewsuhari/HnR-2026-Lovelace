@@ -17,9 +17,9 @@ export default function Home() {
 
   // Check if user is already authenticated on mount
   useEffect(() => {
-    if (!loading && user) {
-      // User is already logged in
-      if (userProfile?.onboardingCompleted) {
+    if (!loading && user && userProfile !== null) {
+      // User is already logged in and profile has loaded
+      if (userProfile.onboardingCompleted) {
         // User has completed onboarding, show main app
         setShowMainApp(true)
       } else {

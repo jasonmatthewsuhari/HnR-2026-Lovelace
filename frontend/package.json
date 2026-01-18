@@ -5,7 +5,7 @@
   "scripts": {
     "build": "next build",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,magenta\"",
-    "dev:frontend": "next dev",
+    "dev:frontend": "next dev -p 3000",
     "dev:backend": "cd ../backend && python main.py",
     "dev:frontend-only": "next dev",
     "lint": "eslint .",
@@ -40,6 +40,9 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "@types/three": "^0.182.0",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
@@ -61,6 +64,7 @@
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.182.0",
     "vaul": "^1.1.2",
     "zod": "3.25.76"
   },

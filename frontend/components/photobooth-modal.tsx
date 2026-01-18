@@ -19,7 +19,7 @@ interface CapturedPhoto {
 }
 
 export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps) {
-  const [step, setStep] = useState<"describe" | "capture" | "results">("describe")
+  const [step, setStep] = useState<"describe" | "capture" | "developing" | "polaroid" | "results">("describe")
   const [currentBackground, setCurrentBackground] = useState<{ id: string; url: string; name: string } | null>(null)
   const [backgroundDescription, setBackgroundDescription] = useState("")
   const [poseDescription, setPoseDescription] = useState("") // New state for boyfriend's pose
@@ -31,6 +31,9 @@ export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps)
   const [isProcessing, setIsProcessing] = useState(false)
   const [showFlash, setShowFlash] = useState(false) // New state for camera flash
   const [isCameraReady, setIsCameraReady] = useState(false) // New state for camera ready check
+  const [polaroidText, setPolaroidText] = useState("") // Text for polaroid
+  const [showPolaroid, setShowPolaroid] = useState(false) // Control polaroid animation
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string>("") // Current photo for polaroid
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -351,8 +354,16 @@ export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps)
             backgroundUrl: currentBackground.url
           }
 
-          setCapturedPhotos(prev => [...prev, newPhoto])
-          setStep("results")
+          // Show developing animation first, then polaroid
+          setCurrentPhotoUrl(finalPhoto)
+          setStep("developing")
+
+          // After 2 seconds, transition to polaroid animation
+          setTimeout(() => {
+            setStep("polaroid")
+            setShowPolaroid(true)
+          }, 2000)
+
           stopCamera()
         } catch (error) {
           console.error("Error processing photo:", error)
@@ -371,11 +382,93 @@ export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps)
     link.click()
   }
 
+  const downloadPolaroid = () => {
+    if (!currentPhotoUrl) return
+
+    // Create canvas to render the full polaroid
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    // Set canvas size (polaroid dimensions)
+    const polaroidWidth = 400
+    const polaroidHeight = 500
+    canvas.width = polaroidWidth
+    canvas.height = polaroidHeight
+
+    // Fill white background
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, polaroidWidth, polaroidHeight)
+
+    // Draw image
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    img.onload = () => {
+      // Image dimensions (320x320 to fit within padding)
+      const imgX = 40
+      const imgY = 40
+      const imgWidth = 320
+      const imgHeight = 320
+
+      ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight)
+
+      // Draw text if present
+      if (polaroidText.trim()) {
+        ctx.fillStyle = "#374151" // gray-800
+        ctx.font = "16px handwriting, cursive"
+        ctx.textAlign = "center"
+
+        // Word wrap text
+        const words = polaroidText.split(' ')
+        const lines = []
+        let currentLine = words[0]
+
+        for (let i = 1; i < words.length; i++) {
+          const word = words[i]
+          const width = ctx.measureText(currentLine + " " + word).width
+          if (width < 300) {
+            currentLine += " " + word
+          } else {
+            lines.push(currentLine)
+            currentLine = word
+          }
+        }
+        lines.push(currentLine)
+
+        // Draw text lines
+        const textY = imgY + imgHeight + 30
+        lines.forEach((line, index) => {
+          ctx.fillText(line, polaroidWidth / 2, textY + (index * 20))
+        })
+      }
+
+      // Draw bottom design line
+      ctx.fillStyle = "#d1d5db" // gray-300
+      ctx.fillRect((polaroidWidth - 64) / 2, polaroidHeight - 30, 64, 4)
+
+      // Download the canvas
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.href = url
+          link.download = `polaroid_${Date.now()}.png`
+          link.click()
+          URL.revokeObjectURL(url)
+        }
+      }, "image/png")
+    }
+    img.src = currentPhotoUrl
+  }
+
   const takeAnother = () => {
     setStep("describe")
     setCurrentBackground(null)
     setBackgroundDescription("")
     setCountdown(null)
+    setPolaroidText("")
+    setShowPolaroid(false)
+    setCurrentPhotoUrl("")
   }
 
   const reset = () => {
@@ -384,6 +477,9 @@ export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps)
     setBackgroundDescription("")
     setCapturedPhotos([])
     setCountdown(null)
+    setPolaroidText("")
+    setShowPolaroid(false)
+    setCurrentPhotoUrl("")
   }
 
   if (!isOpen) return null
@@ -407,6 +503,8 @@ export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps)
               <p className="text-sm text-muted-foreground">
                 {step === "describe" && "Describe your perfect background"}
                 {step === "capture" && "Get ready for your photo!"}
+                {step === "developing" && "Developing your photo..."}
+                {step === "polaroid" && "Add a personal touch"}
                 {step === "results" && `${capturedPhotos.length} photo${capturedPhotos.length !== 1 ? 's' : ''} taken`}
               </p>
             </div>
@@ -591,6 +689,128 @@ export function PhotoboothModal({ isOpen, onClose, avatarUrl }: PhotoboothProps)
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   <Camera className="mr-3 h-8 w-8" />
                   Capture Moment
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Developing Step */}
+          {step === "developing" && (
+            <div className="flex h-full flex-col items-center justify-center gap-6">
+              <div className="relative">
+                {/* Same camera viewfinder as capture step, but with developing overlay */}
+                <div className="relative h-[500px] w-[700px] overflow-hidden rounded-2xl bg-black shadow-2xl border-4 border-white/5">
+                  {/* Background Scene */}
+                  {currentBackground && (
+                    <img src={currentBackground.url} alt="Scene" className="absolute inset-0 h-full w-full object-cover" />
+                  )}
+
+                  {/* Developing Effect */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/60 backdrop-blur-xl z-50">
+                    <div className="h-24 w-24 relative">
+                      <div className="absolute inset-0 rounded-full border-4 border-white/10" />
+                      <div className="absolute inset-0 rounded-full border-t-4 border-white animate-spin" />
+                    </div>
+                    <p className="text-xl font-bold tracking-widest text-white uppercase italic">Developing...</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Polaroid Step */}
+          {step === "polaroid" && currentPhotoUrl && (
+            <div className="flex h-full flex-col items-center justify-center gap-6">
+              <div className="relative">
+                {/* Polaroid Animation Container */}
+                <div className="relative h-[600px] w-[400px] overflow-hidden">
+                  {/* Polaroid Frame - Slides down from top */}
+                  <div
+                    className={`absolute left-1/2 -translate-x-1/2 transition-all duration-1000 ease-out transform ${
+                      showPolaroid
+                        ? "top-8 opacity-100 scale-100"
+                        : "-top-full opacity-0 scale-95"
+                    }`}
+                    style={{
+                      transitionDelay: showPolaroid ? "0.5s" : "0s",
+                    }}
+                  >
+                    {/* White Polaroid Background */}
+                    <div className="bg-white p-4 shadow-2xl rounded-sm">
+                      {/* Image */}
+                      <div className="relative bg-gray-100 rounded-sm overflow-hidden mb-4">
+                        <img
+                          src={currentPhotoUrl}
+                          alt="Polaroid Photo"
+                          className="w-full h-80 object-cover"
+                        />
+                      </div>
+
+                      {/* Editable Text Area */}
+                      <div className="space-y-2">
+                        <textarea
+                          value={polaroidText}
+                          onChange={(e) => setPolaroidText(e.target.value)}
+                          placeholder="Add a caption..."
+                          className="w-full p-2 text-sm bg-transparent border-none resize-none focus:outline-none font-handwriting text-gray-800 placeholder:text-gray-400"
+                          rows={2}
+                          maxLength={100}
+                        />
+                      </div>
+
+                      {/* Polaroid Bottom Design */}
+                      <div className="flex justify-center mt-2">
+                        <div className="w-16 h-1 bg-gray-300 rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Polaroid Controls */}
+              <div className="w-full max-w-md px-4 space-y-4">
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => {
+                      // Add photo to gallery and go to results
+                      const newPhoto: CapturedPhoto = {
+                        id: `photo_${Date.now()}`,
+                        url: currentPhotoUrl,
+                        backgroundName: currentBackground?.name || "",
+                        backgroundUrl: currentBackground?.url || ""
+                      }
+                      setCapturedPhotos(prev => [...prev, newPhoto])
+                      setPolaroidText("")
+                      setCurrentPhotoUrl("")
+                      setShowPolaroid(false)
+                      setStep("results")
+                    }}
+                    className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500"
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    Add to Gallery
+                  </Button>
+                  <Button
+                    onClick={() => downloadPolaroid()}
+                    variant="outline"
+                    className="flex-1 h-12 rounded-xl border-white/10"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Save Polaroid
+                  </Button>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setPolaroidText("")
+                    setCurrentPhotoUrl("")
+                    setShowPolaroid(false)
+                    setStep("capture")
+                  }}
+                  variant="ghost"
+                  className="w-full h-10 text-sm"
+                >
+                  Retake Photo
                 </Button>
               </div>
             </div>

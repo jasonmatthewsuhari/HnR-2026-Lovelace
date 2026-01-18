@@ -39,10 +39,17 @@ firebase-admin>=6.3.0
 
 # Google Gemini API (for AI features and clothes search)
 google-genai>=0.2.0
+google-generativeai>=0.4.0
 
 # AI/ML
 openai>=1.3.0  # For AI features
 anthropic>=0.7.0  # Alternative LLM
+
+# Payment & Commerce
+stripe>=8.0.0  # Stripe payment processing
+
+# Browser Automation
+playwright>=1.40.0  # Headless browser for non-UCP merchants
 
 # Virtual Try-On (placeholder for specific libraries)
 # Will depend on chosen VTO solution

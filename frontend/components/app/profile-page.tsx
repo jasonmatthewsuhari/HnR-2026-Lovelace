@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, Clock, Menu, Plus, X, Trash2, ZoomIn, Filter, Loader2 } from "lucide-react"
+import { Plus, X, Trash2, ZoomIn, Filter, Loader2, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { AddClothingModal, type ClothingItem } from "@/components/app/add-clothing-modal"
 import { useAuth } from "@/hooks/use-auth"
 import { getUserClothing, deleteClothingItem, type ClothingItem as APIClothingItem } from "@/lib/api"
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState<"clothes" | "outfits" | "collections">("clothes")
   const [showCreateOutfitModal, setShowCreateOutfitModal] = useState(false)
   const [showCreateCollectionModal, setShowCreateCollectionModal] = useState(false)
@@ -74,6 +74,16 @@ export default function ProfilePage() {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      await logout()
+      // Redirect will be handled by useAuth hook
+    } catch (error) {
+      console.error("Failed to logout:", error)
+      alert("Failed to logout. Please try again.")
+    }
+  }
+
   const categories = ["all", ...Array.from(new Set(clothingItems.map((item) => item.category).filter(Boolean)))]
 
   const filteredClothingItems =
@@ -92,17 +102,15 @@ export default function ProfilePage() {
       {/* Header */}
       <header className="flex items-center justify-between p-4">
         <h1 className="text-2xl font-bold">{userProfile.username}</h1>
-        <div className="flex items-center gap-3">
-          <button className="text-foreground">
-            <Calendar className="h-6 w-6" />
-          </button>
-          <button className="text-foreground">
-            <Clock className="h-6 w-6" />
-          </button>
-          <button className="text-foreground">
-            <Menu className="h-6 w-6" />
-          </button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleLogout}
+          className="gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Log out
+        </Button>
       </header>
 
       {/* Profile Info */}
